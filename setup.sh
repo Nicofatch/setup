@@ -27,6 +27,13 @@ sudo apt-add-repository -y ppa:cassou/emacs
 sudo apt-get -qq update
 sudo apt-get install -y emacs24-nox emacs24-el emacs24-common-non-dfsg
 
+# Install other important files
+sudo apt-get install make
+sudo apt-get install g++
+npm install -g grunt-cli
+npm install -g grunt
+npm install -g mongo
+
 # Install Heroku toolbelt
 # https://toolbelt.heroku.com/debian
 wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh
