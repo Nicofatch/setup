@@ -1,20 +1,26 @@
-#!/bin/bash
-# Simple setup.sh for configuring Ubuntu 12.04 LTS EC2 instance
-# for headless setup. 
+sudo apt-get update
 
-# Install nvm: node-version manager
-# https://github.com/creationix/nvm
+#Serveur ssh
+sudo apt-get install openssh-server
+
+# XRDP permet de faire du mstsc
+sudo apt-get install xrdp
+# environnement pour XRDP
+sudo apt-get install xfce4
+echo xfce4-session >~/.xsession
+#sudo service xrdp restart
+#replace port=-1 with port=ask-1
+#sudo leafpad /etc/xrdp/xrdp.ini
+#sudo service xrdp restart.
 sudo apt-get install -y git
 sudo apt-get install -y curl
-curl https://raw.github.com/creationix/nvm/master/install.sh | sh
 
-# Load nvm and install latest production node
-source $HOME/.nvm/nvm.sh
-nvm install v0.10.12
-nvm use v0.10.12
+#install nvm
+curl https://raw.githubusercontent.com/creationix/nvm/v0.13.1/install.sh | bash
+nvm install v0.11
+nvm use v0.11
 
-# Install jshint to allow checking of JS code within emacs
-# http://jshint.com/
+#jshint
 npm install -g jshint
 
 # Install rlwrap to provide libreadline features with node
@@ -30,13 +36,12 @@ sudo apt-get install -y emacs24-nox emacs24-el emacs24-common-non-dfsg
 # Install other important files
 sudo apt-get install make
 sudo apt-get install g++
+sudo apt-get install mongodb
+sudo apt-get install fontforge
+
 npm install -g grunt-cli
 npm install -g grunt
 npm install -g mongo
-
-# Install Heroku toolbelt
-# https://toolbelt.heroku.com/debian
-wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh
 
 # git pull and install dotfiles as well
 cd $HOME
@@ -53,3 +58,31 @@ ln -sb dotfiles/.bashrc .
 ln -sb dotfiles/.bashrc_custom .
 ln -sf dotfiles/.emacs.d .
 
+#generate ssh key
+ssh-keygen -t rsa -C "dev-1@nico.com"
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_rsa
+
+#copy and paste to github
+less ~/.ssh/id_rsa.pub
+#test connection
+ssh -T git@github.com
+
+#download spotly
+mkdir dev
+cd dev/
+git clone git@github.com:Nicofatch/Spotly.git
+cd Spotly/server
+npm install
+#seed database
+grunt dbseed
+
+cd ../client
+npm install
+#build client side
+grunt build --force
+
+#commande "prod" pour lancer le server en arrière plan
+echo "alias prod='nohup node ~/dev/Spotly/server/web.js >> ~/dev/prod.log 2>&1 &'" >> dotfiles/.bashrc
+#lancer automatiquement nvm au démarrage
+echo "nvm use v0.11" >> dotfiles/.bashrc
